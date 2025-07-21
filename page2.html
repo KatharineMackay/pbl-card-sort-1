@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Importance Sort</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 0 20px;
+      margin: 0;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 1.5rem;
+    }
+    .instructions {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #card-list {
+      list-style: none;
+      padding: 0;
+      max-width: 600px;
+      margin: 0 auto 10px auto;
+    }
+    #card-list li {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      padding: 5px 5px;
+      margin-bottom: 12px;
+      font-size: 1rem;
+      cursor: grab;
+      user-select: none;
+      transition: background-color 0.3s ease;
+    }
+    #card-list li.dragging {
+      background-color: #d0eaff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      cursor: grabbing;
+      transform: scale(1.03);
+    }
+    #comments-label {
+      display: block;
+      max-width: 600px;
+      margin: 0 auto 5px auto;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+    #comments {
+      display: block;
+      width: 100%;
+      max-width: 600px;
+      height: 80px;
+      margin: 0 auto 20px auto;
+      padding: 10px;
+      font-size: 1rem;
+      resize: vertical;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    #submit-btn {
+      display: block;
+      margin: 0 auto;
+      padding: 12px 28px;
+      font-size: 1.1rem;
+      background: #0078d4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #submit-btn:hover {
+      background: #005fa3;
+    }
+
+    @media (max-width: 768px) {
+      #card-list li {
+        font-size: 1rem;
+      }
+      #comments, #comments-label, #submit-btn {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Sort Topics by Importance</h1>
+  <p class="instructions">Drag to rank. Top = most important.</p>
+
+  <ul id="card-list" aria-label="Sortable list of topics"></ul>
+
+  <label for="comments" id="comments-label">Optional Comments:</label>
+  <textarea id="comments" placeholder="Write any comments or feedback here..."></textarea>
+
+  <button id="submit-btn" type="button">Submit</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <script>
+    const topics = [
+      "Weight limit for bins",
+      "How to sort your waste",
+      "Common waste mistakes and how to avoid them",
+      "Shop for less waste tips",
+      "Reuse & Repurpose tips",
+      "Waste incentives in your area",
+      "Information & statistics on waste",
+      "Information on the impact of waste",
+      "How you can make a difference",
+      "Printable waste sorting chart",
+      "Recycling center near you",
+      "Where to dispose of tricky items (batteries, chemicals)",
+      "Bin schedule in your area",
+      "What goes in what bin",
+      "Tips to reduce your household waste"
+    ];
+
+    const list = document.getElementById("card-list");
+    topics.forEach(topic => {
+      const li = document.createElement("li");
+      li.textContent = topic;
+      li.setAttribute("tabindex", "0");
+      list.appendChild(li);
+    });
+
+    Sortable.create(list, {
+      animation: 150,
+      ghostClass: "dragging",
+      fallbackOnBody: true,
+      swapThreshold: 0.65,
+    });
+
+    document.getElementById("submit-btn").addEventListener("click", () => {
+      const ordered = [...list.children].map(li => li.textContent);
+      const comments = document.getElementById("comments").value.trim();
+
+      // Retrieve page1 data if needed
+      const page1 = JSON.parse(localStorage.getItem("page1result") || "{}");
+      const page1comments = localStorage.getItem("page1comments") || "";
+
+      const formData = new FormData();
+      // Combine page1 and page2 data in one JSON for your Google Form
+      formData.append("entry.898622384", JSON.stringify({ page1, page2: ordered }));
+      // Combine comments from both pages or just page 2
+      formData.append("entry.521820562", page1comments + (page1comments && comments ? "\n\n" : "") + comments);
+
+      fetch("https://docs.google.com/forms/d/e/1FAIpQLSdwIQg_pHfXn8hYdcyPylqM-6SWl0tkxHippfG2VG1nfFfu3Q/formResponse", {
+        method: "POST",
+        mode: "no-cors",
+        body: formData
+      }).then(() => {
+        alert("Thanks! Your response has been submitted.");
+      });
+    });
+  </script>
+</body>
+</html>

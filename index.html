@@ -1,7 +1,9 @@
+<!-- PAGE 1: Visual Card Sort with Bins -->
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Visual Card Sort Activity</title>
   <style>
     body {
@@ -9,12 +11,8 @@
       padding: 20px;
       background: #f4f4f4;
     }
-    h1 {
+    h1, .instructions {
       text-align: center;
-    }
-    .instructions {
-      text-align: center;
-      margin-bottom: 20px;
     }
     .palette, .icons, .bins {
       display: flex;
@@ -24,194 +22,198 @@
       gap: 10px;
     }
     .colour {
-      width: 40px;
-      height: 40px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
       cursor: grab;
     }
     .icon {
-      width: 50px;
-      height: 50px;
+      width: 60px;
+      height: 60px;
       cursor: grab;
     }
     .bin {
       border: 2px dashed #ccc;
       padding: 10px;
-      min-height: 100px;
-      min-width: 120px;
+      min-height: 120px;
+      min-width: 150px;
       background: #fff;
       text-align: center;
     }
     .bin h3 {
-      font-size: 0.9rem;
+      font-size: 1rem;
     }
     .bin-content {
-      min-height: 80px;
+      min-height: 100px;
     }
     #submit-btn, #reset-btn {
       display: inline-block;
-      margin: 10px 5px 0 5px;
-      padding: 10px 20px;
-      font-size: 1rem;
+      margin: 10px;
+      padding: 14px 24px;
+      font-size: 1.2rem;
       cursor: pointer;
     }
     #buttons-container {
       text-align: center;
       margin-bottom: 20px;
     }
-    #comments-label {
+    #comments-label, #comments {
       display: block;
-      max-width: 600px;
-      margin: 0 auto 5px auto;
-      font-weight: bold;
+      max-width: 90%;
+      margin: 0 auto 10px auto;
+      font-size: 1.1rem;
     }
     #comments {
-      display: block;
-      width: 100%;
-      max-width: 600px;
-      height: 80px;
-      margin: 0 auto 20px auto;
+      height: 100px;
       padding: 10px;
-      font-size: 1rem;
-      resize: vertical;
       border: 1px solid #ccc;
       border-radius: 4px;
       box-sizing: border-box;
     }
+
+    @media (max-width: 768px) {
+      .cat-sort {
+        display: flex;
+        flex-direction: row;
+      }
+      #comments, #comments-label, #submit-btn {
+        font-size: 1rem;
+      }
+
+    }
+
+
   </style>
 </head>
 <body>
   <h1>Visual Card Sort</h1>
   <p class="instructions">
-    Drag and place <strong>one or more colours</strong> and <strong>symbols</strong> into each bin.
-    Then click <em>Submit</em> to send your response. There are no right or wrong answers!
+    Drag and place <strong>one or more colours</strong> and <strong>symbols</strong> into each bin.<br>
+    Then click <em>Next</em> to continue.
   </p>
 
+  <div class="cat-sort">
   <div class="palette" id="palette"></div>
   <div class="icons" id="icons"></div>
   <div class="bins" id="bins"></div>
+  </div>
 
   <label for="comments" id="comments-label">Optional Comments / Feedback:</label>
   <textarea id="comments" placeholder="Write any comments or feedback here..."></textarea>
 
   <div id="buttons-container">
     <button id="reset-btn" type="button">Reset</button>
-    <button id="submit-btn" type="button">Submit</button>
+    <button onclick="window.location.href='page2.html'" id="submit-btn" type="button">Next</button>
   </div>
 
-  <script>
-    const colours = ["green", "blue", "purple", "magenta", "red", "orange", "yellow", "black", "#888"];
-    const bins = ["Recycling", "Metal", "Glass", "E-waste", "Landfill", "Compost", "10c Cans/Bottles", "Soft Plastic"];
-    const icons = [
-      "1.png", "2.png", "3.png", "4.png", "5.png", "6.png", "7.png", "8.png", "9.png", "10.png",
-      "11.png", "12.png", "13.png", "14.png", "15.png", "16.png", "17.png", "18.png", "19.png", "20.png"
-    ];
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+  const colours = ["green", "blue", "purple", "#f0f", "red", "orange", "yellow", "black", "#888"];
+  const bins = ["Recycling", "Metal", "Glass", "E-waste", "Landfill", "Compost", "10c Cans/Bottles", "Soft Plastic"];
+  const icons = Array.from({length: 20}, (_, i) => `${i + 1}.png`);
 
-    const paletteDiv = document.getElementById("palette");
-    const iconsDiv = document.getElementById("icons");
-    const binsDiv = document.getElementById("bins");
+  const palette = document.getElementById("palette");
+  const iconsDiv = document.getElementById("icons");
+  const binsDiv = document.getElementById("bins");
 
-    // Create draggable colour dots
-    colours.forEach(colour => {
-      const div = document.createElement("div");
-      div.className = "colour";
-      div.style.backgroundColor = colour;
-      div.draggable = true;
-      div.dataset.type = "colour";
-      div.dataset.value = colour;
-      div.addEventListener("dragstart", dragStart);
-      paletteDiv.appendChild(div);
-    });
+  // Create colour dots
+  colours.forEach(col => {
+    const div = document.createElement("div");
+    div.className = "colour";
+    div.style.background = col;
+    div.setAttribute("data-type", "colour");
+    div.setAttribute("data-value", col);
+    palette.appendChild(div);
+  });
 
-    // Create draggable icons
-    icons.forEach(filename => {
-      const img = document.createElement("img");
-      img.className = "icon";
-      img.src = `icons/${filename}`;
-      img.alt = filename;
-      img.draggable = true;
-      img.dataset.type = "icon";
-      img.dataset.value = filename;
-      img.addEventListener("dragstart", dragStart);
-      iconsDiv.appendChild(img);
-    });
+  // Create icon images
+  icons.forEach(fn => {
+    const img = document.createElement("img");
+    img.className = "icon";
+    img.src = `icons/${fn}`;
+    img.alt = fn;
+    img.setAttribute("data-type", "icon");
+    img.setAttribute("data-value", fn);
+    iconsDiv.appendChild(img);
+  });
 
-    // Create bins
-    bins.forEach(name => {
-      const div = document.createElement("div");
-      div.className = "bin";
-      div.dataset.name = name;
-      div.innerHTML = `
-        <h3>${name}</h3>
-        <div class="bin-content" ondragover="event.preventDefault()" ondrop="drop(event, this)"></div>
-      `;
-      binsDiv.appendChild(div);
-    });
+  // Create bins
+  bins.forEach(name => {
+    const container = document.createElement("div");
+    container.className = "bin";
+    container.setAttribute("data-name", name);
+    container.innerHTML = `<h3>${name}</h3><div class="bin-content"></div>`;
+    binsDiv.appendChild(container);
 
-    function dragStart(e) {
-      e.dataTransfer.setData("text/plain", JSON.stringify({
-        type: e.target.dataset.type,
-        value: e.target.dataset.value,
-        src: e.target.src || null,
-        color: e.target.style.backgroundColor || null
-      }));
-    }
+    // Enable sorting in bin content
+    Sortable.create(container.querySelector(".bin-content"), {
+      group: {
+        name: "shared",
+        pull: false,
+        put: true
+      },
+      animation: 150,
+      onAdd: function (evt) {
+        const original = evt.item;
+        const clone = original.cloneNode(true);
+        clone.classList.remove('sortable-ghost');
 
-    function drop(e, binContent) {
-      e.preventDefault();
-      const data = JSON.parse(e.dataTransfer.getData("text/plain"));
-      let el;
-      if (data.type === "icon") {
-        el = document.createElement("img");
-        el.src = data.src;
-        el.alt = data.value;
-        el.className = "icon";
-      } else {
-        el = document.createElement("div");
-        el.className = "colour";
-        el.style.backgroundColor = data.color;
+        // Put clone in bin, and return original to palette
+        evt.to.removeChild(original);
+        evt.to.appendChild(clone);
       }
-      binContent.appendChild(el);
-    }
+    });
+  });
 
-    // Reset button clears all bins
-    document.getElementById("reset-btn").addEventListener("click", () => {
-      document.querySelectorAll(".bin-content").forEach(binContent => {
-        binContent.innerHTML = "";
+  // Make palette and icons draggable (as sources only)
+  Sortable.create(palette, {
+    group: {
+      name: "shared",
+      pull: "clone",
+      put: false
+    },
+    sort: false,
+    animation: 150
+  });
+
+  Sortable.create(iconsDiv, {
+    group: {
+      name: "shared",
+      pull: "clone",
+      put: false
+    },
+    sort: false,
+    animation: 150
+  });
+
+  document.getElementById("reset-btn").addEventListener("click", () => {
+    document.querySelectorAll(".bin-content").forEach(c => c.innerHTML = "");
+    document.getElementById("comments").value = "";
+  });
+
+  document.getElementById("next-btn").addEventListener("click", () => {
+    const result = {};
+    bins.forEach(name => {
+      const binContent = document.querySelector(`[data-name="${name}"] .bin-content`);
+      const items = [...binContent.children];
+      result[name] = {
+        colours: [],
+        symbols: []
+      };
+      items.forEach(el => {
+        const val = el.getAttribute("data-value");
+        const type = el.getAttribute("data-type");
+        if (type === "icon") result[name].symbols.push(val);
+        else result[name].colours.push(val);
       });
-      document.getElementById("comments").value = "";
     });
 
-    // Submit button gathers results and comments and sends to Google Form
-    document.getElementById("submit-btn").addEventListener("click", () => {
-      const result = {};
-      document.querySelectorAll(".bin").forEach(bin => {
-        const name = bin.dataset.name;
-        const content = bin.querySelector(".bin-content").children;
-        result[name] = { colours: [], symbols: [] };
-        Array.from(content).forEach(el => {
-          if (el.tagName === "IMG") {
-            result[name].symbols.push(el.alt);
-          } else {
-            result[name].colours.push(el.style.backgroundColor);
-          }
-        });
-      });
+    const comments = document.getElementById("comments").value.trim();
+    localStorage.setItem("page1result", JSON.stringify(result));
+    localStorage.setItem("page1comments", comments);
+    window.location.href = "page2.html";
+  });
+</script>
 
-      const comments = document.getElementById("comments").value.trim();
-
-      const formData = new FormData();
-        formData.append("entry.898622384", JSON.stringify(result));
-        formData.append("entry.521820562", comments);
-
-      fetch("https://docs.google.com/forms/d/e/1FAIpQLSdwIQg_pHfXn8hYdcyPylqM-6SWl0tkxHippfG2VG1nfFfu3Q/formResponse", {
-        method: "POST",
-        mode: "no-cors",
-        body: formData
-      }).then(() => {
-        alert("Thanks! Your response has been submitted.");
-      });
-    });
-  </script>
 </body>
 </html>
