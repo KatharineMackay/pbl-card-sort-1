@@ -1,0 +1,135 @@
+<!-- PAGE 3: Final Sort and Submit -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Final Waste Sort</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+    }
+    ol {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 0;
+      list-style-position: inside;
+    }
+    li {
+      background: #fff;
+      padding: 12px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      cursor: grab;
+    }
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 14px 24px;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Sort Waste Topics by Importance</h1>
+  <p style="text-align: center;">Drag to reorder the topics from most to least important to you, then click <strong>Submit</strong>.</p>
+
+  <ol id="sortable">
+    <li>What goes in what bin</li>
+    <li>Where to dispose of tricky items</li>
+    <li>Recycling centre near you</li>
+    <li>Bin schedule in your area</li>
+    <li>Shop for less waste tips</li>
+    <li>Reuse & Repurpose tips</li>
+    <li>Common waste mistakes</li>
+    <li>Tips to reduce your household waste</li>
+    <li>Waste incentives in your area</li>
+    <li>Weight limit for bins</li>
+    <li>Information on the impact of waste</li>
+    <li>How you can make a difference</li>
+    <li>Printable waste sorting chart</li>
+  </ol>
+
+  <button id="submit-btn" type="submit">Submit</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <script>
+    Sortable.create(document.getElementById("sortable"), {
+      animation: 150
+    });
+
+    document.getElementById("submit-btn").addEventListener("click", () => {
+      const sortedItems = [...document.querySelectorAll("#sortable li")].map(el => el.textContent.trim());
+
+      localStorage.setItem("page3sort", JSON.stringify(sortedItems));
+
+      alert("Thanks for submitting!");
+      console.log("Page 1 Result:", JSON.parse(localStorage.getItem("page1result")));
+      console.log("Page 2 Result:", JSON.parse(localStorage.getItem("page2result")));
+      console.log("Page 3 Sort:", sortedItems);
+    });
+
+  // Get all saved results and comments
+const page1result = localStorage.getItem("page1result") || "{}";
+const page1comments = localStorage.getItem("page1comments") || "";
+
+const page2result = localStorage.getItem("page2result") || "{}";
+const page2comments = localStorage.getItem("page2comments") || "";
+
+const page3result = localStorage.getItem("page3result") || "{}";
+const page3comments = localStorage.getItem("page3comments") || "";
+
+// Combine all data into one object
+const combinedData = {
+  page1: {
+    result: JSON.parse(page1result),
+    comments: page1comments
+  },
+  page2: {
+    result: JSON.parse(page2result),
+    comments: page2comments
+  },
+  page3: {
+    result: JSON.parse(page3result),
+    comments: page3comments
+  }
+};
+
+// Convert to JSON string for submission
+const combinedString = JSON.stringify(combinedData);
+
+// Google Form submission URL
+const formUrl = "https://docs.google.com/forms/d/e/1bq4GMn4rs_uoLr2UpsY_GK0rypVLFsoO344CbZQTC-E/formResponse";
+
+// Your Google Form single entry ID
+const entryId = "entry.898622384";
+
+const data = new URLSearchParams();
+data.append(entryId, combinedString);
+
+// Submit data to Google Form
+fetch(formUrl, {
+  method: "POST",
+  body: data,
+  headers: {
+    "Content-Type": "application/x-www-form-urlencoded"
+  }
+})
+.then(() => {
+  alert("Submission successful!");
+  localStorage.clear();  // optional: clear storage after submit
+  window.location.href = "thankyou.html";  // optional: redirect after submit
+})
+.catch(() => {
+  alert("Submission failed, please try again.");
+});
+
+</script>
+</body>
+</html>

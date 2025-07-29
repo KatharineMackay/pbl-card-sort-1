@@ -1,10 +1,10 @@
-<!-- PAGE 2: Symbol Card Sort with Delete Dot & Responsive -->
+<!-- PAGE 1: Colour Card Sort with Delete Dot -->
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Visual Card Sort – Symbols</title>
+  <title>Visual Card Sort – Colours</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -14,31 +14,25 @@
     h1, .instructions {
       text-align: center;
     }
-    .icons, .bins {
+    .palette, .bins {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       margin-bottom: 30px;
       gap: 10px;
     }
-    .icon {
-      width: 60px;
-      height: 60px;
+    .colour {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
       cursor: grab;
       user-select: none;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-sizing: border-box;
       font-weight: bold;
       font-size: 1.5rem;
-      border-radius: 8px;
-      background: white;
-      border: 1px solid transparent;
-      transition: border-color 0.2s ease;
-    }
-    .icon:hover {
-      border-color: #666;
+      box-sizing: border-box;
     }
     .bin {
       border: 2px dashed #ccc;
@@ -47,15 +41,14 @@
       min-width: 150px;
       background: #fff;
       text-align: center;
-      border-radius: 6px;
     }
     .bin h3 {
       font-size: 1rem;
       margin: 0 0 8px 0;
     }
     .bin-content {
-      min-height: 100px;
-      min-width: 100px;
+      min-height: 80px;
+      min-width: 80px;
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
@@ -95,43 +88,39 @@
       border: 2px solid red;
       background: #fff0f0;
       user-select: none;
-      border-radius: 8px;
     }
 
-    /* Responsive: smaller bins & icons on mobile */
     @media (max-width: 600px) {
-      .bin {
-        min-width: 90px;
-        min-height: 90px;
-        padding: 6px;
-      }
-      .bin h3 {
-        font-size: 0.8rem;
-      }
-      .bin-content {
-        min-height: 70px;
-        min-width: 70px;
-        gap: 4px;
-      }
-      .icon {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-      }
-      .delete-dot {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-        line-height: 40px;
-      }
-    }
+  .bin {
+    min-width: 90px;       /* smaller width */
+    min-height: 90px;      /* smaller height */
+    padding: 6px;
+  }
+
+  .bin h3 {
+    font-size: 0.8rem;    /* smaller heading text */
+  }
+
+  .bin-content {
+    min-height: 70px;
+    min-width: 70px;
+    gap: 4px;
+  }
+
+  .colour {
+    width: 35px;          /* smaller colour dots */
+    height: 35px;
+    font-size: 1.2rem;    /* smaller font size for delete dot */
+  }
+}
+
   </style>
 </head>
 <body>
-  <h1>Visual Card Sort – Symbols</h1>
-  <p class="instructions">Drag and place <strong>symbols</strong> into the bins below. Then click <em>Next</em>.</p>
+  <h1>Visual Card Sort – Colours</h1>
+  <p class="instructions">Drag and place <strong>colours</strong> into the bins below. Then click <em>Next</em>.</p>
 
-  <div class="icons" id="icons"></div>
+  <div class="palette" id="palette"></div>
   <div class="bins" id="bins"></div>
 
   <label for="comments" id="comments-label">Optional Comments:</label>
@@ -144,56 +133,28 @@
 
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <script>
+    const colours = ["green", "blue", "purple", "#f0f", "red", "orange", "yellow", "black", "#888"];
     const bins = ["Recycling", "Metal", "Glass", "E-waste", "Landfill", "Compost", "10c Cans/Bottles", "Soft Plastic"];
 
+    const palette = document.getElementById("palette");
     const binsDiv = document.getElementById("bins");
 
-    const icons = [
-      "apple core.png",
-      "banana peel.png",
-      "block & bolt.png",
-      "broken cord.png",
-      "broken glass.png",
-      "broken lightbulb.png",
-      "broken wine glass.png",
-      "dump truck.png",
-      "garbage bin.png",
-      "leaf.png",
-      "pieces of glass.png",
-      "plastic bag.png",
-      "recycle.png",
-      "screw.png",
-      "smoothie cup.png",
-      "softdrink can.png",
-      "trash bag.png",
-      "tuna can.png",
-      "water bottle.png"
-    ];
-
-    // Get the icons container
-    const iconsDiv = document.getElementById("icons");
-
-    // Clear existing icons
-    iconsDiv.innerHTML = "";
-
-    // Create and append each icon image
-    icons.forEach(fn => {
-      const img = document.createElement("img");
-      img.className = "icon";
-      img.src = `icons/${fn}`;     // Your folder path
-      img.alt = fn;
-      img.setAttribute("data-type", "icon");
-      img.setAttribute("data-value", fn);  // Filename as value
-      iconsDiv.appendChild(img);
+    // Create colour dots
+    colours.forEach(col => {
+      const div = document.createElement("div");
+      div.className = "colour";
+      div.style.background = col;
+      div.setAttribute("data-type", "colour");
+      div.setAttribute("data-value", col);
+      palette.appendChild(div);
     });
 
-
-    // Add delete dot (❌) to icons
-    const deleteIcon = document.createElement("div");
-    deleteIcon.className = "icon delete-dot";
-    deleteIcon.textContent = "❌";
-    deleteIcon.setAttribute("data-type", "delete");
-    iconsDiv.appendChild(deleteIcon);
+    // Add a delete dot (❌) to palette
+    const deleteColour = document.createElement("div");
+    deleteColour.className = "colour delete-dot";
+    deleteColour.textContent = "❌";
+    deleteColour.setAttribute("data-type", "delete");
+    palette.appendChild(deleteColour);
 
     // Create bins
     bins.forEach(name => {
@@ -203,7 +164,7 @@
       container.innerHTML = `<h3>${name}</h3><div class="bin-content"></div>`;
       binsDiv.appendChild(container);
 
-      // Enable dragging and dropping inside bins
+      // Make bin-content droppable and draggable
       Sortable.create(container.querySelector(".bin-content"), {
         group: "shared",
         animation: 150,
@@ -212,12 +173,12 @@
           const type = original.getAttribute("data-type");
 
           if (type === "delete") {
-            original.remove(); // Prevent delete dot inside bins
+            original.remove(); // Prevent adding delete dot inside bins
             return;
           }
 
-          // When dragging from icons palette, clone it
-          if (evt.from === iconsDiv) {
+          // When dragging from palette, clone it into bin (so palette item stays)
+          if (evt.from === palette) {
             const clone = original.cloneNode(true);
             clone.classList.remove("sortable-ghost");
             evt.to.removeChild(original);
@@ -227,8 +188,8 @@
       });
     });
 
-    // Make icons palette draggable and receivable
-    Sortable.create(iconsDiv, {
+    // Make palette draggable & able to receive dragged items back
+    Sortable.create(palette, {
       group: {
         name: "shared",
         pull: "clone",
@@ -238,8 +199,8 @@
       animation: 150
     });
 
-    // Delete dot accepts dragged items and removes them
-    Sortable.create(deleteIcon, {
+    // Make the delete dot accept dragged items and remove them
+    Sortable.create(deleteColour, {
       group: "shared",
       animation: 150,
       onAdd: function(evt) {
@@ -253,7 +214,7 @@
       document.getElementById("comments").value = "";
     });
 
-    // Next button saves data and goes to page3.html
+    // Next button saves data & goes to page2.html
     document.getElementById("next-btn").addEventListener("click", () => {
       const result = {};
       bins.forEach(name => {
@@ -263,9 +224,9 @@
       });
 
       const comments = document.getElementById("comments").value.trim();
-      localStorage.setItem("page2result", JSON.stringify(result));
-      localStorage.setItem("page2comments", comments);
-      window.location.href = "page3.html";
+      localStorage.setItem("page1result", JSON.stringify(result));
+      localStorage.setItem("page1comments", comments);
+      window.location.href = "page2.html";
     });
   </script>
 </body>
