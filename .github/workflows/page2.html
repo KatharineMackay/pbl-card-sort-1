@@ -1,0 +1,272 @@
+<!-- PAGE 2: Symbol Card Sort with Delete Dot & Responsive -->
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Visual Card Sort – Symbols</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+    h1, .instructions {
+      text-align: center;
+    }
+    .icons, .bins {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 30px;
+      gap: 10px;
+    }
+    .icon {
+      width: 60px;
+      height: 60px;
+      cursor: grab;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      font-weight: bold;
+      font-size: 1.5rem;
+      border-radius: 8px;
+      background: white;
+      border: 1px solid transparent;
+      transition: border-color 0.2s ease;
+    }
+    .icon:hover {
+      border-color: #666;
+    }
+    .bin {
+      border: 2px dashed #ccc;
+      padding: 10px;
+      min-height: 120px;
+      min-width: 150px;
+      background: #fff;
+      text-align: center;
+      border-radius: 6px;
+    }
+    .bin h3 {
+      font-size: 1rem;
+      margin: 0 0 8px 0;
+    }
+    .bin-content {
+      min-height: 100px;
+      min-width: 100px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+    #submit-btn, #reset-btn, #next-btn {
+      display: inline-block;
+      margin: 10px;
+      padding: 14px 24px;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    #buttons-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #comments-label, #comments {
+      display: block;
+      max-width: 90%;
+      margin: 0 auto 10px auto;
+      font-size: 1.1rem;
+    }
+    #comments {
+      height: 100px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      resize: vertical;
+    }
+
+    /* Delete dot styling */
+    .delete-dot {
+      color: red;
+      font-weight: bold;
+      text-align: center;
+      border: 2px solid red;
+      background: #fff0f0;
+      user-select: none;
+      border-radius: 8px;
+    }
+
+    /* Responsive: smaller bins & icons on mobile */
+    @media (max-width: 600px) {
+      .bin {
+        min-width: 90px;
+        min-height: 90px;
+        padding: 6px;
+      }
+      .bin h3 {
+        font-size: 0.8rem;
+      }
+      .bin-content {
+        min-height: 70px;
+        min-width: 70px;
+        gap: 4px;
+      }
+      .icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+      .delete-dot {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+        line-height: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Visual Card Sort – Symbols</h1>
+  <p class="instructions">Drag and place <strong>symbols</strong> into the bins below. Then click <em>Next</em>.</p>
+
+  <div class="icons" id="icons"></div>
+  <div class="bins" id="bins"></div>
+
+  <label for="comments" id="comments-label">Optional Comments:</label>
+  <textarea id="comments" placeholder="Write any comments here..."></textarea>
+
+  <div id="buttons-container">
+    <button id="reset-btn" type="button">Reset</button>
+    <button id="next-btn" type="button">Next</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <script>
+    const bins = ["Recycling", "Metal", "Glass", "E-waste", "Landfill", "Compost", "10c Cans/Bottles", "Soft Plastic"];
+
+    const binsDiv = document.getElementById("bins");
+
+    const icons = [
+      "apple core.png",
+      "banana peel.png",
+      "block & bolt.png",
+      "broken cord.png",
+      "broken glass.png",
+      "broken lightbulb.png",
+      "broken wine glass.png",
+      "dump truck.png",
+      "garbage bin.png",
+      "leaf.png",
+      "pieces of glass.png",
+      "plastic bag.png",
+      "recycle.png",
+      "screw.png",
+      "smoothie cup.png",
+      "softdrink can.png",
+      "trash bag.png",
+      "tuna can.png",
+      "water bottle.png"
+    ];
+
+    // Get the icons container
+    const iconsDiv = document.getElementById("icons");
+
+    // Clear existing icons
+    iconsDiv.innerHTML = "";
+
+    // Create and append each icon image
+    icons.forEach(fn => {
+      const img = document.createElement("img");
+      img.className = "icon";
+      img.src = `icons/${fn}`;     // Your folder path
+      img.alt = fn;
+      img.setAttribute("data-type", "icon");
+      img.setAttribute("data-value", fn);  // Filename as value
+      iconsDiv.appendChild(img);
+    });
+
+
+    // Add delete dot (❌) to icons
+    const deleteIcon = document.createElement("div");
+    deleteIcon.className = "icon delete-dot";
+    deleteIcon.textContent = "❌";
+    deleteIcon.setAttribute("data-type", "delete");
+    iconsDiv.appendChild(deleteIcon);
+
+    // Create bins
+    bins.forEach(name => {
+      const container = document.createElement("div");
+      container.className = "bin";
+      container.setAttribute("data-name", name);
+      container.innerHTML = `<h3>${name}</h3><div class="bin-content"></div>`;
+      binsDiv.appendChild(container);
+
+      // Enable dragging and dropping inside bins
+      Sortable.create(container.querySelector(".bin-content"), {
+        group: "shared",
+        animation: 150,
+        onAdd: function(evt) {
+          const original = evt.item;
+          const type = original.getAttribute("data-type");
+
+          if (type === "delete") {
+            original.remove(); // Prevent delete dot inside bins
+            return;
+          }
+
+          // When dragging from icons palette, clone it
+          if (evt.from === iconsDiv) {
+            const clone = original.cloneNode(true);
+            clone.classList.remove("sortable-ghost");
+            evt.to.removeChild(original);
+            evt.to.appendChild(clone);
+          }
+        }
+      });
+    });
+
+    // Make icons palette draggable and receivable
+    Sortable.create(iconsDiv, {
+      group: {
+        name: "shared",
+        pull: "clone",
+        put: true
+      },
+      sort: false,
+      animation: 150
+    });
+
+    // Delete dot accepts dragged items and removes them
+    Sortable.create(deleteIcon, {
+      group: "shared",
+      animation: 150,
+      onAdd: function(evt) {
+        evt.item.remove();
+      }
+    });
+
+    // Reset button clears bins and comments
+    document.getElementById("reset-btn").addEventListener("click", () => {
+      document.querySelectorAll(".bin-content").forEach(c => c.innerHTML = "");
+      document.getElementById("comments").value = "";
+    });
+
+    // Next button saves data and goes to page3.html
+    document.getElementById("next-btn").addEventListener("click", () => {
+      const result = {};
+      bins.forEach(name => {
+        const binContent = document.querySelector(`[data-name="${name}"] .bin-content`);
+        const items = [...binContent.children];
+        result[name] = items.map(el => el.getAttribute("data-value"));
+      });
+
+      const comments = document.getElementById("comments").value.trim();
+      localStorage.setItem("page2result", JSON.stringify(result));
+      localStorage.setItem("page2comments", comments);
+      window.location.href = "page3.html";
+    });
+  </script>
+</body>
+</html>
